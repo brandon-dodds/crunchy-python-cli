@@ -67,7 +67,6 @@ def show_search(user_show_search_string):
         return user_show_search_output[user_show_result - 1]
 
 
-
 def main():
     # Booleans
     login = False
@@ -96,7 +95,6 @@ def main():
 
     user_show_search = input("Search for a show: ")
     user_show_choice = show_search(user_show_search)
-    print(user_show_choice.name)
 
 
 main()
