@@ -5,10 +5,11 @@ from __future__ import unicode_literals
 import getpass
 import platform
 import sys
+
 import requests
+from crunchyroll.apis.errors import ApiLoginFailure
 from crunchyroll.apis.meta import MetaApi
 from crunchyroll.apis.meta import ScraperApi
-from crunchyroll.apis.errors import ApiLoginFailure
 
 # User's OS ("Windows" or "Linux")
 user_operating_system = platform.system()
@@ -22,9 +23,11 @@ crunchyroll_scraper_api = ScraperApi(connector=requests)
 def login_to_crunchyroll(crunchyroll_username, crunchyroll_password):
     try:
         crunchyroll_meta_api.login(username=crunchyroll_username, password=crunchyroll_password)
+
     except ApiLoginFailure:
         print("Your login failed, please try again.")
         quit()
+
     else:
         print("Your login succeeded.")
 
@@ -36,6 +39,33 @@ def print_user_queue():
     for user_queue_item in user_queue:
         print("{0}: {1}".format(user_queue_item_number, user_queue_item.name))
         user_queue_item_number += 1
+
+
+def show_search(user_show_search_string):
+    user_show_result = False
+    user_show_search_output = crunchyroll_meta_api.search_anime_series(user_show_search_string)
+    if len(user_show_search_output) == 0:
+        print("The show you are looking for is unavailable, please try again.")
+        main()
+
+    print("Here are your search results: \n")
+    for show_number in range(len(user_show_search_output)):
+        print("[{0}]: ".format(show_number + 1) + user_show_search_output[show_number].name)
+
+    user_search_show_select = input("Please enter the number of the show you are trying to watch: ")
+    try:
+        user_show_result = int(user_search_show_select)  # Asks the user to input the show number.
+
+    except:
+        print("Number entered or their is an error, please try again.")
+        main()
+
+    confirmation = input("Are you sure that {0} is the anime you want to watch?: ".format(
+        user_show_search_output[user_show_result - 1].name)).lower()
+
+    if confirmation == "yes":
+        return user_show_search_output[user_show_result - 1]
+
 
 
 def main():
@@ -63,5 +93,10 @@ def main():
 
         if queue_argument:
             print_user_queue()
+
+    user_show_search = input("Search for a show: ")
+    user_show_choice = show_search(user_show_search)
+    print(user_show_choice.name)
+
 
 main()
