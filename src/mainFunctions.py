@@ -24,10 +24,9 @@ def login_to_crunchyroll(crunchyroll_username, crunchyroll_password):
         crunchyroll_meta_api.login(username=crunchyroll_username, password=crunchyroll_password)
     except ApiLoginFailure:
         print("Your login failed, please try again.")
-        main()
+        quit()
     else:
         print("Your login succeeded.")
-        return True
 
 
 def print_user_queue():
@@ -43,7 +42,6 @@ def main():
     # Booleans
     login = False
     queue_argument = False
-    was_login_successful = False
 
     for arguments in commandline_arguments[1:]:
         if arguments == "--simulate":
@@ -61,12 +59,9 @@ def main():
     if login:
         input_username = input("Please enter your username: ")
         input_password = getpass.getpass("Crunchyroll Password: ")
-        was_login_successful = login_to_crunchyroll(input_username, input_password)
+        login_to_crunchyroll(input_username, input_password)
 
         if queue_argument:
-
-            if was_login_successful:
-                print_user_queue()
-
+            print_user_queue()
 
 main()
