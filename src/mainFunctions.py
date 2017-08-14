@@ -34,8 +34,8 @@ def print_user_queue():
     user_queue = crunchyroll_meta_api.list_queue()
     print("\nQueue Items:")
     user_queue_item_number = 1
-    for userQueueItem in user_queue:
-        print("{0}: {1}".format(user_queue_item_number, userQueueItem.name))
+    for user_queue_item in user_queue:
+        print("{0}: {1}".format(user_queue_item_number, user_queue_item.name))
         user_queue_item_number += 1
 
 
