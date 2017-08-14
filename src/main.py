@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-#Created on 04/08/2017. Version 0.0.2
+# Created on 04/08/2017. Version 0.0.2
 from __future__ import unicode_literals
-from crunchyroll.apis.meta import MetaApi
-from crunchyroll.apis.meta import ScraperApi
-import requests
-import youtube_dl
-import sys
+
 import getpass
 import platform
-import logging
+import sys
+import requests
+import youtube_dl
+from crunchyroll.apis.meta import MetaApi
+from crunchyroll.apis.meta import ScraperApi
 
-#TODO List
+# TODO List
 '''
 - Let user select subtitle language
 - Force --search, default to --help not search
@@ -22,33 +22,33 @@ import logging
 - Finish help section (Done 8/8/17)
 '''
 
-#User's OS ("Windows" or "Linux")
+# User's OS ("Windows" or "Linux")
 userOperatingSystem = platform.system()
 
-#Starting variables
+# Starting variables
 commandLineArguments = sys.argv
 crunchyrollMetaAPI = MetaApi()
 crunchyrollScraperAPI = ScraperApi(connector=requests)
 simulateDownloadBoolean = False
 queueArgument = False
 
-#Loop variables
+# Loop variables
 crunchyrollLoginAttempt = False
 showSearchSuccess = False
 showResultsSelectionCorrect = False
 doLoginOrNot = False
 
-#Command line arguments
+# Command line arguments
 for argumentItem in commandLineArguments[1:]:
     if argumentItem == "--simulate":
         simulateDownloadBoolean = True
     elif argumentItem == "--auth":
         doLoginOrNot = True
     elif argumentItem == "--queue":
-    	queueArgument = True
-    	#list_queue
+        queueArgument = True
+    # list_queue
     elif argumentItem == "--help":
-        #Todo: Write out all availiable command line arguments
+        # Todo: Write out all availiable command line arguments
         print('''CrunchyPythonCLI - Usage: crunchypythoncli --[argument]
 
 --- Command Line Arguments ---
@@ -88,10 +88,9 @@ You can specify range: "1-3,7,10-13", it will download the videos at index 1, 2,
         print("Use \"--help\" to see all availiable arguemnts.")
         quit()
 
-
-#User Authentication
-if doLoginOrNot == True:
-    while crunchyrollLoginAttempt == False: #Asks user for Crunchyroll credentials and passes these to api so user can be authenticated
+# User Authentication
+if doLoginOrNot:
+    while not crunchyrollLoginAttempt:  # Asks user for Crunchyroll credentials and passes these to api so user can be authenticated
         CRUsername = input("Crunchyroll Username: ")
         CRPassword = getpass.getpass("Crunchyroll Password: ")
         try:
@@ -105,8 +104,8 @@ if doLoginOrNot == True:
 else:
     print("User not authorized. To gain premium user benefits launch with command line \"--auth\"\n")
 
-if queueArgument == True:
-    if crunchyrollLoginAttempt == True:
+if queueArgument:
+    if crunchyrollLoginAttempt:
         userQueue = crunchyrollMetaAPI.list_queue()
         print("\nQueue Items:")
         userQueueItemNumber = 1
@@ -117,8 +116,8 @@ if queueArgument == True:
         print("Queue feature only works when logged in. Use \"--auth\" to login")
         quit()
 else:
-    #Search for a show
-    while showSearchSuccess == False:
+    # Search for a show
+    while not showSearchSuccess:
         userSearchInput = input("Search for a show: ")
         userSearchOutput = crunchyrollMetaAPI.search_anime_series(userSearchInput)
         if len(userSearchOutput) == 0:
@@ -126,70 +125,74 @@ else:
         else:
             showSearchSuccess = True
 
-    while showResultsSelectionCorrect == False:
+    while not showResultsSelectionCorrect:
         print("\nSearch Results:")
         for names in range(len(userSearchOutput)):
-            print("[{0}]: ".format(names + 1) + userSearchOutput[names].name) #Prints out the show with a show number.
+            print("[{0}]: ".format(names + 1) + userSearchOutput[names].name)  # Prints out the show with a show number.
         showResultsSelectionNumber = input("Please enter the show number of the show you would like to watch: ")
         try:
-            userResultInput = int(showResultsSelectionNumber) #Asks the user to input the show number.
+            userResultInput = int(showResultsSelectionNumber)  # Asks the user to input the show number.
         except:
             print("Number entered or their is an error, please try again.")
         else:
             showResultsSelectionCorrect = True
 
-    #Asks the user if the show that they want to watch is correct, returns it in a lower case format.
-    confirmation = input("Are you sure that {0} is the anime you want to watch?: ".format(userSearchOutput[userResultInput - 1].name)).lower()
+    # Asks the user if the show that they want to watch is correct, returns it in a lower case format.
+    confirmation = input("Are you sure that {0} is the anime you want to watch?: ".format(
+        userSearchOutput[userResultInput - 1].name)).lower()
 
-    if confirmation == "yes": #If yes it will return the episodes.
+    if confirmation == "yes":  # If yes it will return the episodes.
         print("These are the list of episodes available to watch. \n")
-        userEpisodes = crunchyrollMetaAPI.list_media(userSearchOutput[userResultInput - 1]) #Lists the media of the series they are trying to watch.
-        #Number of episodes show has availiable
+        userEpisodes = crunchyrollMetaAPI.list_media(
+            userSearchOutput[userResultInput - 1])  # Lists the media of the series they are trying to watch.
+        # Number of episodes show has availiable
         userEpisodeNumber = len(userEpisodes)
         for x in userEpisodes:
-            print("[{0}] Episode {1}: {2}".format(userEpisodeNumber, x.episode_number, x.name)) #Prints the available list of episodes.
+            print("[{0}] Episode {1}: {2}".format(userEpisodeNumber, x.episode_number,
+                                                  x.name))  # Prints the available list of episodes.
             userEpisodeNumber -= 1
-        episodeNumberInput = input("Input the id number of the episode(s) you want to watch (Look at --help's \"Multi-Episode Selection Guide\" for help): ")
+        episodeNumberInput = input(
+            "Input the id number of the episode(s) you want to watch (Look at --help's \"Multi-Episode Selection Guide\" for help): ")
 
         ydl_opts = {
-            "simulate" : simulateDownloadBoolean,
-            "subtitlesformat" : "ass",
-            "subtitleslangs" : ["enUS"],
-            "writesubtitles" : True,
-            "call_home" : False,
-            "outtmpl" : "%(season)s - Episode %(episode_number)s: %(episode)s.%(ext)s",
+            "simulate": simulateDownloadBoolean,
+            "subtitlesformat": "ass",
+            "subtitleslangs": ["enUS"],
+            "writesubtitles": True,
+            "call_home": False,
+            "outtmpl": "%(season)s - Episode %(episode_number)s: %(episode)s.%(ext)s",
         }
 
-        #ydlCheckSubsOperators = {
+        # ydlCheckSubsOperators = {
         #    "skip_download" : True,
         #    "listsubtitles": True
-        #}
+        # }
 
-        #Simple list comprehension, returns the actual episode the user is trying to view.
+        # Simple list comprehension, returns the actual episode the user is trying to view.
         if episodeNumberInput == "":
             print("Downloading all episodes")
         else:
             if "-" in episodeNumberInput or "," in episodeNumberInput:
                 print("Downloading multiple episodes")
             if "," not in episodeNumberInput and "-" not in episodeNumberInput:
-                #Dict for selected episode
+                # Dict for selected episode
                 selectedEpisode = userEpisodes[len(userEpisodes) - int(episodeNumberInput)]
                 print("Downloading episode " + selectedEpisode.episode_number)
-                #True if premium account is needed to watch
-                episodePremiumOnly = not(bool(selectedEpisode.free_available))
-                #Unique episode identifier
+                # True if premium account is needed to watch
+                episodePremiumOnly = not (bool(selectedEpisode.free_available))
+                # Unique episode identifier
                 episodeMediaID = selectedEpisode.media_id
-                #Website url for episode
+                # Website url for episode
                 episodeURL = selectedEpisode.url
-                #Adds "playlist_items" to youtube-dl options (ydl_opts)
+            # Adds "playlist_items" to youtube-dl options (ydl_opts)
 
             ydl_opts["playlist_items"] = episodeNumberInput
-            #ydlCheckSubsOperators["playlist_items"] = episodeNumberInput
+        # ydlCheckSubsOperators["playlist_items"] = episodeNumberInput
 
         theURLForTheStream = userSearchOutput[userResultInput - 1].url
-        #print(crunchyrollScraperAPI.get_media_formats(episodeMediaID)) #Returns the availiable qualities for selected episode
+        # print(crunchyrollScraperAPI.get_media_formats(episodeMediaID)) #Returns the availiable qualities for selected episode
 
-        #with youtube_dl.YoutubeDL(ydlCheckSubsOperators) as ydl:
+        # with youtube_dl.YoutubeDL(ydlCheckSubsOperators) as ydl:
         #    testOutput = ydl.list_subtitles([theURLForTheStream])
         #    print(testOutput)
 
