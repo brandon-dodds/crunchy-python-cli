@@ -1,5 +1,8 @@
+crunchyroll
+crunchyroll
 tlslite
 requests
 youtube-dl
 cfscrape
 pyexecjs
+termcolor

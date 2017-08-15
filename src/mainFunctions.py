@@ -1,17 +1,18 @@
 #!/usr/bin/env python2
 # Created on 04/08/2017.
 from __future__ import unicode_literals, print_function
-__version__ = "0.0.2"
 
 import getpass
 import platform
 import sys
 
 import requests
-from youtube_dl import YoutubeDL as YouTubeDL
 from crunchyroll.apis.errors import ApiLoginFailure
 from crunchyroll.apis.meta import MetaApi, ScraperApi
 from termcolor import colored as colorize
+from youtube_dl import YoutubeDL as YouTubeDL
+
+__version__ = "0.0.2"
 
 # this script should have a noninteractive mode (hint: you should separate talking to the user with the rest of the
 # code) as well as a mode accepting pipes to be useful
