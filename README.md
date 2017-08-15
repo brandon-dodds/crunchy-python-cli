@@ -8,7 +8,6 @@ In order to get the program running you will need to install these packages.
 ```
 tlslite
 requests
-crunchyroll
 youtube-dl
 cfscrape
 node.js
@@ -16,7 +15,11 @@ node.js
 The Python packages can be installed with the following command (delete the "sudo" on Windows):
 
 ```
-sudo pip3 install tlslite requests crunchyroll youtube-dl cfscrape
+sudo pip3 install tlslite requests youtube-dl cfscrape
+```
+You will also need to download the crunchyroll API; this can be done with the following command:
+```
+git clone https://github.com/aheadley/python-crunchyroll && cd python-crunchyroll && python3 setup.py install
 ```
 
 Node-JS is also needed and can be installed on Debian-based distros with this:
@@ -24,19 +27,24 @@ Node-JS is also needed and can be installed on Debian-based distros with this:
 sudo apt update
 sudo apt install nodejs
 ```
+It can also be installed on Solus with the following command:
+```
+sudo eopkg update
+sudo eopkg install nodejs
+```
 
 ## Getting Started
 
 In order to get started git clone this project in a directory using the command:
 ```
-git clone https://github.com/Mar2ck/CrunchyPythonCLI/
+git clone https://github.com/subpanda101/CrunchyPythonCLI/
 ```
-You will need to install the packages written in the [requirements.](https://github.com/Mar2ck/CrunchyPythonCLI/blob/master/requirements.txt) After you have installed the requirements you can run the base [program.](https://github.com/Mar2ck/CrunchyPythonCLI/blob/master/src/main.py)
+You will need to install the packages written in the [requirements.](https://github.com/subpanda101/CrunchyPythonCLI/blob/master/requirements.txt) After you have installed the requirements you can run the base [program.](https://github.com/subpanda101/CrunchyPythonCLI/blob/master/src/mainFunctions.py)
 
 You should open the program with:
 
 ```
-python3 main.py
+python3 mainFunctions.py
 ```
 
 ## Command line arguments
@@ -76,12 +84,12 @@ Displays the users Crunchyroll queue (Work in progress)
 
 
 
-See also the list of [contributors](https://github.com/Mar2ck/CrunchyPythonCLI/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/subpanda101/CrunchyPythonCLI/graphs/contributors) who participated in this project.
 
 ## Contribution
 
-If you are looking to contribute; remember to read the [contribution file.](https://github.com/Mar2ck/CrunchyPythonCLI/blob/master/CONTRIBUTING.md)
+If you are looking to contribute; remember to read the [contribution file.](https://github.com/subpanda101/CrunchyPythonCLI/blob/master/CONTRIBUTING.md)
 
 ## License
 
-This project is licensed under the GNU General Public License - see the [LICENSE.md](https://github.com/Mar2ck/CrunchyPythonCLI/blob/master/LICENSE) file for details
+This project is licensed under the GNU General Public License - see the [LICENSE.md](https://github.com/subpanda101/CrunchyPythonCLI/blob/master/LICENSE) file for details
