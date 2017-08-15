@@ -112,7 +112,6 @@ def main():
         elif arguments == "--queue":
             login = True
             queue_argument = True
-        # list_queue
         else:
             print("Unrecognised arguments, quitting.")
             quit()
