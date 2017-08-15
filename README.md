@@ -15,7 +15,7 @@ node.js
 The Python packages can be installed with the following command (delete the "sudo" on Windows):
 
 ```
-sudo pip3 install tlslite requests youtube-dl cfscrape
+sudo pip3 install -r requirements.txt
 ```
 You will also need to download the crunchyroll API; this can be done with the following command:
 ```
