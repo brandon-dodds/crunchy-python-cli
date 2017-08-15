@@ -1,77 +1,87 @@
-#!/usr/bin/env python3
-# Created on 04/08/2017. Version 0.0.2
-from __future__ import unicode_literals
+#!/usr/bin/env python2
+# Created on 04/08/2017.
+from __future__ import unicode_literals, print_function
+__version__ = "0.0.2"
 
 import getpass
 import platform
 import sys
 
 import requests
-import youtube_dl
+from youtube_dl import YoutubeDL as YouTubeDL
 from crunchyroll.apis.errors import ApiLoginFailure
-from crunchyroll.apis.meta import MetaApi
-from crunchyroll.apis.meta import ScraperApi
+from crunchyroll.apis.meta import MetaApi, ScraperApi
+from termcolor import colored as colorize
+
+# this script should have a noninteractive mode (hint: you should separate talking to the user with the rest of the
+# code) as well as a mode accepting pipes to be useful
 
 # User's OS ("Windows" or "Linux")
 user_operating_system = platform.system()
 
 # API and Starting variables
-commandline_arguments = sys.argv
+commandline_arguments = sys.argv  # use the argparse library instead.
 crunchyroll_meta_api = MetaApi()
 crunchyroll_scraper_api = ScraperApi(connector=requests)
+
+
+def fail(obj):
+    print(colorize(str(obj), color="red"))
+    quit(1)  # error code 1 signifies failure
 
 
 def login_to_crunchyroll(crunchyroll_username, crunchyroll_password):
     try:
         crunchyroll_meta_api.login(username=crunchyroll_username, password=crunchyroll_password)
     except ApiLoginFailure:
-        print("Your login failed, please try again.")
-        quit()
+        fail("Invalid Username/Password combination.")
     else:
-        print("Your login succeeded.")
+        print("Login successful.")
 
 
 def print_user_queue():
     user_queue = crunchyroll_meta_api.list_queue()
     print("\nQueue Items:")
-    user_queue_item_number = 1
-    for user_queue_item in user_queue:
+    for user_queue_item_number, user_queue_item in enumerate(user_queue, start=1):
         print("{0}: {1}".format(user_queue_item_number, user_queue_item.name))
-        user_queue_item_number += 1
 
 
 def show_search(user_show_search_string):
-    user_show_result = False
     user_show_search_output = crunchyroll_meta_api.search_anime_series(user_show_search_string)
     if len(user_show_search_output) == 0:
-        print("The show you are looking for is unavailable, please try again.")
-        main()
-    print("Here are your search results: \n")
+        print("That show was not found in crunchyroll's directory.")
+        return show_search(user_show_search_string)
+
+    # this could be improved using GNU less
     for show_number in range(len(user_show_search_output)):
         print("[{0}]: ".format(show_number + 1) + user_show_search_output[show_number].name)
 
-    user_search_show_select = input("Please enter the number of the show you are trying to watch: ")
-    try:
-        user_show_result = int(user_search_show_select)  # Asks the user to input the show number.
+    while True:
+        user_search_show_select = input("Enter the ID of the show you wish to watch: ")
+        try:
+            user_show_result = int(user_search_show_select)  # Asks the user to input the show number.
+        except ValueError:
+            print("Please enter a number.")
+        else:
+            break
 
-    except:
-        print("Number entered or their is an error, please try again.")
-        main()
-    confirmation = input("Are you sure that {0} is the anime you want to watch?: ".format(
-        user_show_search_output[user_show_result - 1].name)).lower()
-    if confirmation == "yes":
+    confirmation = input("Are you sure? (y/n): ").lower()
+    if confirmation.startswith('y'):  # do it unix style
         return user_show_search_output[user_show_result - 1]
+    else:
+        return show_search(user_show_search_string)
 
 
 def episode_choice(user_show_choice_result, simulate_boolean):
-    print("These are the list of episodes available to watch. \n")
+    print("Choose episode: \n")
     episodes_from_user_show = crunchyroll_meta_api.list_media(user_show_choice_result)
     amount_of_episodes = len(episodes_from_user_show)
     for x in episodes_from_user_show:
         print("[{0}] Episode {1}: {2}".format(amount_of_episodes, x.episode_number,
                                               x.name))  # Prints the available list of episodes.
         amount_of_episodes -= 1
-    episode_id_input = input("Input the ID of the episode(s) that you would like to watch: ")
+    episode_id_input = input(
+        "Select episode(s) with ID: ")  # there are libraries out there that let the user scroll the menu.
     ydl_opts = {
         "simulate": simulate_boolean,
         "subtitlesformat": "ass",
@@ -85,21 +95,19 @@ def episode_choice(user_show_choice_result, simulate_boolean):
         print("Downloading all episodes.")
     else:
         if "-" or "," in episode_id_input:
-            print("Downloading multiple episodes.")
+            print("Downloading multiple episodes...")
         if "-" or "," not in episode_id_input:
             selected_episode = episodes_from_user_show[len(episodes_from_user_show) - int(episode_id_input)]
-            print("Downloading episode {0}".format(selected_episode.episode_number))
-            episode_premium_only = not (bool(selected_episode.free_available))
-            episode_media_id = selected_episode.media_id
-            episode_url = selected_episode.url
+            print("Downloading episode {0}...".format(selected_episode.episode_number))
         ydl_opts["playlist_items"] = episode_id_input
     the_url_for_the_show = user_show_choice_result.url
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    with YouTubeDL(ydl_opts) as ydl:
         ydl.download([the_url_for_the_show])
 
 
 def main():
     # Booleans
+    # these should be scanned for in a configuration file, such as ~/.crunchycli.ini
     simulate_download = False
     login = False
     queue_argument = False
@@ -114,8 +122,7 @@ def main():
             queue_argument = True
         # list_queue
         else:
-            print("Unrecognised arguments, quitting.")
-            quit()
+            fail("Unrecognised arguments, quitting.")
 
     if login:
         input_username = input("Please enter your username: ")
