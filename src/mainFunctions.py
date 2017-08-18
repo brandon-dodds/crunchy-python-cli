@@ -3,7 +3,6 @@
 from __future__ import unicode_literals, print_function
 
 import getpass
-import platform
 import sys
 
 import requests
@@ -16,9 +15,6 @@ __version__ = "0.0.2"
 
 # this script should have a noninteractive mode (hint: you should separate talking to the user with the rest of the
 # code) as well as a mode accepting pipes to be useful
-
-# User's OS ("Windows" or "Linux")
-user_operating_system = platform.system()
 
 # API and Starting variables
 commandline_arguments = sys.argv  # use the argparse library instead.
@@ -43,34 +39,33 @@ def login_to_crunchyroll(crunchyroll_username, crunchyroll_password):
 def print_user_queue():
     user_queue = crunchyroll_meta_api.list_queue()
     print("\nQueue Items:")
-    for user_queue_item_number, user_queue_item in enumerate(user_queue, start=1):
-        print("{0}: {1}".format(user_queue_item_number, user_queue_item.name))
+    if len(user_queue) == 0:
+        fail("You have no items in your queue.")
+    else:
+        for user_queue_item_number, user_queue_item in enumerate(user_queue, start=1):
+            print("{0}: {1}".format(user_queue_item_number, user_queue_item.name))
 
 
 def show_search(user_show_search_string):
     user_show_search_output = crunchyroll_meta_api.search_anime_series(user_show_search_string)
     if len(user_show_search_output) == 0:
-        print("That show was not found in crunchyroll's directory.")
-        return show_search(user_show_search_string)
-
-    # this could be improved using GNU less
-    for show_number in range(len(user_show_search_output)):
-        print("[{0}]: ".format(show_number + 1) + user_show_search_output[show_number].name)
-
-    while True:
-        user_search_show_select = input("Enter the ID of the show you wish to watch: ")
-        try:
-            user_show_result = int(user_search_show_select)  # Asks the user to input the show number.
-        except ValueError:
-            print("Please enter a number.")
-        else:
-            break
-
-    confirmation = input("Are you sure? (y/n): ").lower()
-    if confirmation.startswith('y'):  # do it unix style
-        return user_show_search_output[user_show_result - 1]
+        fail("Your show wasn't found in crunchyroll's database.")
     else:
-        return show_search(user_show_search_string)
+        for show_number, show in enumerate(user_show_search_output, start=1):
+            print("[{0}]: ".format(show_number) + show.name)
+        while True:
+            user_search_show_select = input("Enter the ID of the show you wish to watch: ")
+            try:
+                user_show_result = int(user_search_show_select)  # Asks the user to input the show number.
+            except ValueError:
+                print("Please enter a number.")
+            else:
+                break
+        confirmation = input("Are you sure? (y/n): ").lower()
+        if confirmation.startswith('y'):
+            return user_show_search_output[user_show_result - 1]
+        else:
+            main()
 
 
 def episode_choice(user_show_choice_result, simulate_boolean):
@@ -91,7 +86,6 @@ def episode_choice(user_show_choice_result, simulate_boolean):
         "call_home": False,
         "outtmpl": "%(season)s - Episode %(episode_number)s: %(episode)s.%(ext)s",
     }
-
     if episode_id_input == "":
         print("Downloading all episodes.")
     else:
@@ -112,7 +106,6 @@ def main():
     simulate_download = False
     login = False
     queue_argument = False
-
     for arguments in commandline_arguments[1:]:
         if arguments == "--simulate":
             simulate_download = True
@@ -123,15 +116,12 @@ def main():
             queue_argument = True
         else:
             fail("Unrecognised arguments, quitting.")
-
     if login:
         input_username = input("Please enter your username: ")
         input_password = getpass.getpass("Crunchyroll Password: ")
         login_to_crunchyroll(input_username, input_password)
-
         if queue_argument:
             print_user_queue()
-
     user_show_search = input("Search for a show: ")
     user_show_choice = show_search(user_show_search)
     episode_choice(user_show_choice, simulate_download)
