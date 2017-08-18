@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # Created on 04/08/2017.
 from __future__ import unicode_literals, print_function
 
