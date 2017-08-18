@@ -70,11 +70,9 @@ def show_search(user_show_search_string):
 def episode_choice(user_show_choice_result, simulate_boolean):
     print("Choose episode: \n")
     episodes_from_user_show = crunchyroll_meta_api.list_media(user_show_choice_result)
-    amount_of_episodes = len(episodes_from_user_show)
-    for x in episodes_from_user_show:
-        print("[{0}] Episode {1}: {2}".format(amount_of_episodes, x.episode_number,
-                                              x.name))  # Prints the available list of episodes.
-        amount_of_episodes -= 1
+    for idx, episode in enumerate(episodes_from_user_show):
+        print("[{0}] Episode {1}: {2}".format(len(episodes_from_user_show) - idx, episode.episode_number,
+                                              episode.name))  # Prints the available list of episodes.
     episode_id_input = input(
         "Select episode(s) with ID: ")  # there are libraries out there that let the user scroll the menu.
     ydl_opts = {
