@@ -12,9 +12,6 @@ from youtube_dl import YoutubeDL as YouTubeDL
 
 __version__ = "0.0.2"
 
-# this script should have a noninteractive mode (hint: you should separate talking to the user with the rest of the
-# code) as well as a mode accepting pipes to be useful
-
 # API and Starting variables
 commandline_arguments = sys.argv  # use the argparse library instead.
 crunchyroll_meta_api = MetaApi()
